@@ -20,24 +20,25 @@ new Vue({
     },
     methods: {
         // Regular attack of player.
-        regularAttack: function() {
-            return (
-                Math.floor(Math.random() * this.player.baseAttackMax) +
+        getRegularAttackDmg: function() {
+            return Math.max(
+                Math.floor(Math.random() * this.player.baseAttackMax) + 1,
                 this.player.baseAttackMin
             );
         },
         // Special attack of player.
-        specialAttack: function() {
-            return (
-                Math.floor(Math.random() * this.player.specialAttackMax) +
+        getSpecialAttackDmg: function() {
+            return Math.max(
+                Math.floor(Math.random() * this.player.specialAttackMax) + 1,
                 this.player.specialAttackMin
             );
         },
         // Heal powers of player.
-        heal: function() {
-            var healPwr =
-                Math.floor(Math.random() * this.player.healingMax) +
-                this.player.healingMin;
+        getHealAmount: function() {
+            var healPwr = Math.max(
+                Math.floor(Math.random() * this.player.healingMax) + 1,
+                this.player.healingMin
+            );
             // Prevent overhealing.
             if (healPwr > 100 - this.player.health) {
                 return 100 - this.player.health;
@@ -46,9 +47,9 @@ new Vue({
             }
         },
         // Monster attack.
-        monsterAttack: function() {
-            return (
-                Math.floor(Math.random() * this.monster.attackMax) +
+        getMonsterAttackDmg: function() {
+            return Math.max(
+                Math.floor(Math.random() * this.monster.attackMax) + 1,
                 this.monster.attackMin
             );
         },
@@ -105,15 +106,15 @@ new Vue({
             switch (turnType) {
                 // Regular attack.
                 case 0:
-                    attackPower = this.regularAttack();
+                    attackPower = this.getRegularAttackDmg();
                     break;
                 // Special attack.
                 case 1:
-                    attackPower = this.specialAttack();
+                    attackPower = this.getSpecialAttackDmg();
                     break;
                 // Healing
                 case 2:
-                    attackPower = this.heal();
+                    attackPower = this.getHealAmount();
                     isHeal = true;
                     break;
                 // Give up.
@@ -133,7 +134,7 @@ new Vue({
             }
             // Monster always fight back if alive.
             if (this.monster.health > 0) {
-                var monsterDmg = this.monsterAttack();
+                var monsterDmg = this.getMonsterAttackDmg();
                 this.doDamage(false, monsterDmg);
             }
         },
@@ -181,6 +182,8 @@ new Vue({
             if (!this.isPlayerDead) {
                 return;
             }
+            // Set health to zero to avoid negative numbers.
+            this.player.health = 0;
             // Make a log of death.
             this.makeLog(false, 'Monster killed a player, monster wins!');
             // Prompt player.
@@ -195,6 +198,8 @@ new Vue({
             if (!this.isMonsterDead) {
                 return;
             }
+            // Set health to zero to avoid negative numbers.
+            this.monster.health = 0;
             // Make a log of win.
             this.makeLog(true, 'Player killed a monster, player wins!');
             // Prompt player.
